@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Academic Assistant</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container fade-in-up">
+
+    <div class="header-wrapper">
+        <h1 class="soothing-text">🌿 Smart Academic Assistant</h1>
+        <button id="themeToggleBtn" class="theme-toggle" onclick="window.toggleTheme ? toggleTheme() : null" title="Toggle Light/Dark Mode">
+            🌙
+        </button>
+    </div>
+
+    <div class="cards-wrapper">
+        <!-- PYQ Analyzer -->
+        <div class="card soothing-card">
+            <div class="card-header">
+                <h2>📚 PYQ Predictor</h2>
+                <p>We analyze past papers for you. Just select your semester and provide the syllabus.</p>
+            </div>
+            
+            <div class="input-group">
+                <label>Select Semester</label>
+                <div class="custom-select-wrapper">
+                    <select id="semester" class="custom-select">
+                        <option value="semester_1">Semester 1</option>
+                        <option value="semester_2">Semester 2</option>
+                        <option value="semester_3">Semester 3</option>
+                        <option value="semester_4">Semester 4</option>
+                        <option value="semester_5">Semester 5</option>
+                        <option value="semester_6">Semester 6</option>
+                        <option value="semester_7">Semester 7</option>
+                        <option value="semester_8">Semester 8</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Enter Syllabus (one topic per line)</label>
+                <textarea id="syllabus" class="custom-textarea" placeholder="e.g.&#10;DBMS Normalization&#10;ER Diagrams&#10;Indexing"></textarea>
+            </div>
+
+            <button class="btn btn-peaceful" id="analyzeBtn" onclick="window.analyzePYQ ? analyzePYQ() : null">
+                <span class="btn-text">Predict Questions</span>
+                <div class="loader" id="analyzeLoader"></div>
+            </button>
+
+            <div class="result-section">
+                <h3>Predicted Questions</h3>
+                <div id="result" class="result-box"></div>
+            </div>
+        </div>
+
+        <!-- OCR -->
+        <div class="card soothing-card">
+            <div class="card-header">
+                <h2>📸 Notes Scanner</h2>
+                <p>Extract machine-readable text directly from your handwritten notes or images.</p>
+            </div>
+            
+            <div class="input-group">
+                <label>Upload Image</label>
+                <div class="custom-file-upload">
+                    <input type="file" id="imageFile" class="file-input" accept="image/*">
+                </div>
+            </div>
+
+            <button class="btn btn-peaceful-alt" id="scanBtn" onclick="window.scanImage ? scanImage() : null">
+                <span class="btn-text">Extract Text</span>
+                <div class="loader" id="scanLoader"></div>
+            </button>
+
+            <div class="result-section">
+                <h3>Extracted Text</h3>
+                <div id="ocrResult" class="result-box"></div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>
