@@ -1,92 +1,67 @@
+import os
+import json
 import re
 
-# -----------------------------
-# STEP 1: Extract questions
-# -----------------------------
-def extract_questions(text):
-    lines = text.lower().split("\n")
-    questions = []
-
-    for line in lines:
-        line = line.strip()
-
-        # Reduced minimum length to 10 to catch short questions like "what is dbms?"
-        if len(line) < 10:
-            continue
-
-        if (
-            "?" in line or
-            line.startswith("explain") or
-            line.startswith("define") or
-            line.startswith("what") or
-            line.startswith("write") or
-            line.startswith("describe")
-        ):
-            questions.append(line)
-
-    return questions
-
-
-# -----------------------------
-# STEP 2: Extract syllabus topics
-# -----------------------------
-def extract_topics(syllabus):
-    topics = syllabus.lower().split("\n")
-    return [t.strip() for t in topics if len(t.strip()) > 3]
-
-
-# -----------------------------
-# STEP 3: Matching logic
-# -----------------------------
-def match_score(question, topic):
-    q_words = set(re.findall(r'\w+', question))
-    t_words = set(re.findall(r'\w+', topic))
-
-    return len(q_words & t_words)
-
-
-# -----------------------------
-# STEP 4: Main analyzer
-# -----------------------------
 def analyze(text, syllabus):
-    questions = extract_questions(text)
-    topics = extract_topics(syllabus)
-
-    # Group identical questions to calculate frequency
-    question_freqs = {}
-    for q in questions:
-        clean_q = q.strip()
-        if clean_q not in question_freqs:
-            question_freqs[clean_q] = 1
-        else:
-            question_freqs[clean_q] += 1
-
-    results = []
-
-    for q, freq in question_freqs.items():
-        best_match_score = 0
-        best_topic = None
-
-        for t in topics:
-            score = match_score(q, t)
-
-            if score > best_match_score:
-                best_match_score = score
-                best_topic = t
-
-        if best_match_score > 0:
-            # Multiply string match score by frequency to establish true relevance
-            overall_relevance = best_match_score * freq
-            results.append({
-                "question": q,
-                "topic": best_topic,
-                "score": overall_relevance,
-                "frequency": freq
-            })
-
-    # Sort deeply by overall relevance score
-    results.sort(key=lambda x: x["score"], reverse=True)
-
-    return {
-        "top_questions": results[:30]
-    }
+    api_key = os.getenv("GEMINI_API_KEY")
+    if not api_key:
+        return {"error": "GEMINI_API_KEY is missing from environment. Please set it."}
+        
+    try:
+        from google import genai
+        client = genai.Client(api_key=api_key)
+        
+        prompt = """
+        You are an intelligent Academic Analyzer. 
+        You are given the Syllabus and raw OCR text from past Question Papers.
+        
+        Your tasks:
+        1. Identify questions from the Question Papers text.
+        2. Group semantically identical questions (even if worded differently or containing OCR typos) into a single representative question.
+        3. Count their frequencies (how many times they were repeated across the papers).
+        4. Match each question to the best relevant topic present in the Syllabus.
+        
+        Return ONLY a raw JSON object in this EXACT format (no markdown blocks ```json, no extra text):
+        {
+          "top_questions": [
+            {
+              "question": "Representative Question Form",
+              "topic": "Matching Syllabus Topic",
+              "frequency": 3
+            }
+          ]
+        }
+        """
+        
+        contents = f"SYLLABUS:\n{syllabus}\n\nQUESTION PAPERS:\n{text}\n\n{prompt}"
+        
+        response = client.models.generate_content(
+            model='gemini-2.5-flash',
+            contents=contents,
+        )
+        
+        raw_text = response.text
+        
+        # Robust JSON Parsing
+        try:
+            json_match = re.search(r'\{.*\}', raw_text, re.DOTALL)
+            if json_match:
+                clean_text = json_match.group(0)
+            else:
+                clean_text = raw_text.replace("```json", "").replace("```", "").strip()
+                
+            data = json.loads(clean_text)
+            
+            # Sort deeply by frequency to show most repeated questions first
+            if "top_questions" in data:
+                 data["top_questions"] = sorted(data["top_questions"], key=lambda x: x.get("frequency", 0), reverse=True)
+                 
+            return data
+        except json.JSONDecodeError:
+            print("Failed to parse JSON")
+            print("Raw Output from Gemini:", response.text)
+            return {"error": "Failed to parse JSON from AI"}
+            
+    except Exception as e:
+        print(f"Error during Gemini PyQ Analysis: {e}")
+        return {"error": str(e)}

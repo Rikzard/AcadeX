@@ -104,7 +104,7 @@ async function analyzePYQ() {
         let output = result.top_questions.map(r =>
             `<div class="result-card">
                <p><b>Topic:</b> ${r.topic}</p>
-               <p><b>Score:</b> ${r.score} <span style="opacity:0.7; font-size: 0.9em;">(Found ${r.frequency} time${r.frequency > 1 ? 's' : ''})</span></p>
+               <p><b>Repeated:</b> ${r.frequency} time${r.frequency > 1 ? 's' : ''}</p>
                <p style="margin-top: 10px;">${r.question}</p>
              </div>`
         ).join("");
