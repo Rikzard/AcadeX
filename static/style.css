@@ -122,6 +122,45 @@ body {
     }
 }
 
+@media (max-width: 600px) {
+    body {
+        padding: 20px 15px;
+    }
+    
+    .header-wrapper {
+        margin-bottom: 25px;
+        align-items: flex-start;
+    }
+    
+    .theme-toggle {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
+    }
+
+    .soothing-text {
+        font-size: 1.8rem;
+        text-align: left;
+    }
+
+    .soothing-card {
+        padding: 25px 20px;
+        border-radius: 20px;
+    }
+    
+    .card-header h2 {
+        font-size: 1.4rem;
+    }
+    
+    .custom-file-upload input::file-selector-button {
+        display: block;
+        margin-right: 0;
+        margin-bottom: 12px;
+        width: 100%;
+        text-align: center;
+    }
+}
+
 /* Soothing Cards */
 .soothing-card {
     background: var(--card-bg);
