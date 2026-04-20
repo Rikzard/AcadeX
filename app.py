@@ -56,6 +56,9 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
 # Data File Helpers
 BOOKS_FILE = "data/books.json"
+SUBMISSIONS_FILE = "data/submissions.json"
+SUBMISSIONS_FOLDER = "submissions"
+os.makedirs(SUBMISSIONS_FOLDER, exist_ok=True)
 
 def load_books():
     if not os.path.exists(BOOKS_FILE):
@@ -65,6 +68,16 @@ def load_books():
 
 def save_books(data):
     with open(BOOKS_FILE, "w") as f:
+        json.dump(data, f, indent=4)
+
+def load_submissions():
+    if not os.path.exists(SUBMISSIONS_FILE):
+        return []
+    with open(SUBMISSIONS_FILE, "r") as f:
+        return json.load(f)
+
+def save_submissions(data):
+    with open(SUBMISSIONS_FILE, "w") as f:
         json.dump(data, f, indent=4)
 
 @app.route("/")
@@ -410,6 +423,63 @@ def get_static_mock_test():
     ])
     
     return jsonify(questions)
+
+
+# ==========================================
+# Test Submissions Endpoints
+# ==========================================
+
+@app.route("/api/submit_test", methods=["POST"])
+@login_required
+def submit_test():
+    if session.get("role") != "student":
+        return jsonify({"error": "Only students can submit tests."}), 403
+
+    semester = request.form.get("semester")
+    subject  = request.form.get("subject")
+    ans_file = request.files.get("answer_file")
+
+    if not ans_file or not semester or not subject:
+        return jsonify({"error": "Missing data or file."}), 400
+
+    student   = session["user"]
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
+    safe_sub  = subject.replace(" ", "_")
+    filename  = f"{student}_{safe_sub}_{timestamp}{os.path.splitext(ans_file.filename)[1]}"
+    filepath  = os.path.join(SUBMISSIONS_FOLDER, filename)
+    ans_file.save(filepath)
+
+    entry = {
+        "student":      student,
+        "semester":     semester,
+        "subject":      subject,
+        "submitted_at": time.strftime("%Y-%m-%d %H:%M"),
+        "filename":     filename
+    }
+    submissions = load_submissions()
+    submissions.append(entry)
+    save_submissions(submissions)
+
+    return jsonify({"success": True})
+
+
+@app.route("/api/submissions", methods=["GET"])
+@login_required
+def get_submissions():
+    if session.get("role") != "teacher":
+        return jsonify({"error": "Unauthorized"}), 403
+    return jsonify(load_submissions())
+
+
+@app.route("/api/submissions/download/<filename>", methods=["GET"])
+@login_required
+def download_submission(filename):
+    if session.get("role") != "teacher":
+        return jsonify({"error": "Unauthorized"}), 403
+    filepath = os.path.join(SUBMISSIONS_FOLDER, filename)
+    if not os.path.exists(filepath):
+        return jsonify({"error": "File not found"}), 404
+    return send_file(os.path.abspath(filepath), as_attachment=True)
 
 
 # ==========================================

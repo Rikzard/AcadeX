@@ -68,15 +68,18 @@ function switchView(viewId) {
 
     // Update Title
     const titleMap = {
-        'dashboard-view': 'Dashboard Overview',
-        'pyq-view': 'PYQ Predictor',
-        'books-view': 'Reference Books',
-        'tabulator-view': 'Marks Tabulator'
+        'dashboard-view':   'Dashboard Overview',
+        'pyq-view':         'PYQ Predictor',
+        'books-view':       'Reference Books',
+        'mock-test-view':   'Mock Test',
+        'tabulator-view':   'Marks Tabulator',
+        'submissions-view': 'Student Submissions'
     };
     document.getElementById('activeViewTitle').innerText = titleMap[viewId] || 'AcadeX';
 
     if (viewId === 'books-view') loadLibrary();
     if (viewId === 'mock-test-view') initMockTest();
+    if (viewId === 'submissions-view') loadSubmissions();
 }
 
 // --- Sidebar Logic ---
@@ -243,6 +246,7 @@ async function generateMockTest() {
     const paperArea = document.getElementById("mockPaperArea");
     const questionsList = document.getElementById("mockQuestionsList");
     const displaySub = document.getElementById("displaySub");
+    const uploadPanel = document.getElementById("answerUploadPanel");
 
     try {
         const response = await fetch(`/api/static_mock_test?subject=${sub}`);
@@ -257,11 +261,111 @@ async function generateMockTest() {
         `).join("");
 
         paperArea.classList.remove("hidden");
+        uploadPanel.classList.remove("hidden");
         // Scroll to paper
         paperArea.scrollIntoView({ behavior: 'smooth' });
 
     } catch (e) {
         alert("Error generating mock test.");
+    }
+}
+
+async function submitTestAnswers() {
+    const sub  = document.getElementById("mockSubject").value;
+    const sem  = document.getElementById("mockSemester").value;
+    const file = document.getElementById("answerFile").files[0];
+
+    if (!file) {
+        alert("Please attach your answer file before submitting.");
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append("semester", sem);
+    formData.append("subject", sub);
+    formData.append("answer_file", file);
+
+    try {
+        const response = await fetch("/api/submit_test", {
+            method: "POST",
+            body: formData
+        });
+        const result = await response.json();
+
+        if (result.success) {
+            // ✅ Reset the view completely — student sees no history
+            document.getElementById("mockPaperArea").classList.add("hidden");
+            document.getElementById("answerUploadPanel").classList.add("hidden");
+            document.getElementById("answerFile").value = "";
+            document.getElementById("mockQuestionsList").innerHTML = "";
+
+            // Show a short success toast
+            const toast = document.createElement("div");
+            toast.style.cssText = `
+                position: fixed; bottom: 30px; right: 30px; z-index: 9999;
+                background: #16A34A; color: white; padding: 16px 24px;
+                border-radius: 14px; font-weight: 600; font-size: 0.95rem;
+                box-shadow: 0 8px 24px rgba(22,163,74,0.3);
+                animation: slideUpFade 0.4s ease;
+            `;
+            toast.innerText = "✅ Answers submitted successfully!";
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        } else {
+            alert(result.error || "Failed to submit.");
+        }
+    } catch (e) {
+        alert("Error submitting answers.");
+    }
+}
+
+async function loadSubmissions() {
+    const container = document.getElementById("submissionsTable");
+    if (!container) return;
+
+    container.innerHTML = '<p style="color: var(--text-muted); padding: 20px;">Loading submissions...</p>';
+
+    try {
+        const response = await fetch("/api/submissions");
+        const submissions = await response.json();
+
+        if (!submissions.length) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    📭 No submissions yet. Students will appear here after submitting their tests.
+                </div>`;
+            return;
+        }
+
+        container.innerHTML = `
+            <table class="submissions-table">
+                <thead>
+                    <tr>
+                        <th>Student</th>
+                        <th>Subject</th>
+                        <th>Semester</th>
+                        <th>Submitted At</th>
+                        <th>Answer File</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${submissions.map(s => `
+                        <tr>
+                            <td><strong>${s.student}</strong></td>
+                            <td><span class="sub-badge">${s.subject}</span></td>
+                            <td>${s.semester.replace('_', ' ')}</td>
+                            <td>${s.submitted_at}</td>
+                            <td>
+                                <a class="btn-download" href="/api/submissions/download/${s.filename}" download>
+                                    ⬇ Download
+                                </a>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>`;
+    } catch (e) {
+        container.innerHTML = '<p style="color: darkred; padding: 20px;">Error loading submissions.</p>';
     }
 }
 

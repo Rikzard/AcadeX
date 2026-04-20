@@ -45,6 +45,9 @@
             <button class="nav-item" onclick="switchView('tabulator-view')">
                 <span class="icon">📋</span> <span class="nav-label">Tabulator</span>
             </button>
+            <button class="nav-item" onclick="switchView('submissions-view')">
+                <span class="icon">📬</span> <span class="nav-label">Submissions</span>
+            </button>
             {% endif %}
         </nav>
 
@@ -266,8 +269,29 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Answer Upload Panel (shown after test is generated) -->
+                    <div id="answerUploadPanel" class="hidden">
+                        <div class="upload-answer-panel">
+                            <div class="upload-answer-header">
+                                <span class="upload-icon">📎</span>
+                                <div>
+                                    <div class="upload-title">Submit Your Answers</div>
+                                    <div class="upload-subtitle">Attach your written answer sheet (PDF, image, or document)</div>
+                                </div>
+                            </div>
+                            <div class="upload-answer-body">
+                                <div class="custom-file-upload" style="flex:1">
+                                    <input type="file" id="answerFile" class="file-input" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx">
+                                </div>
+                                <button class="btn btn-peaceful" style="max-width:200px; margin-top:0;" onclick="submitTestAnswers()">
+                                    Submit Answers
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
+
 
             {% if role == 'teacher' %}
             <!-- Marks Tabulator View -->
@@ -298,6 +322,19 @@
                 <h3>Extracted Data</h3>
                 <div id="ocrResult" class="result-box"></div>
             </div>
+            </section>
+            <!-- Teacher: Submissions View -->
+            <section id="submissions-view" class="view fade-in">
+                <div class="card soothing-card">
+                    <div class="card-header">
+                        <h2>📬 Student Test Submissions</h2>
+                        <p>All mock test answer sheets submitted by students. Download to review.</p>
+                    </div>
+
+                    <div id="submissionsTable">
+                        <div class="loader-small">Loading...</div>
+                    </div>
+                </div>
             </section>
             {% endif %}
 

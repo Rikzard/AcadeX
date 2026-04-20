@@ -991,3 +991,118 @@ label {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--secondary);
 }
+
+/* =============================================
+   Answer Upload Panel (Student Mock Test)
+   ============================================= */
+.upload-answer-panel {
+    background: var(--bg-main);
+    border: 1.5px dashed var(--secondary);
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-top: 30px;
+}
+
+.upload-answer-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.upload-icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.upload-title {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-heading);
+    margin-bottom: 3px;
+}
+
+.upload-subtitle {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.upload-answer-body {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+/* =============================================
+   Submissions Table (Teacher View)
+   ============================================= */
+.submissions-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.93rem;
+    margin-top: 10px;
+}
+
+.submissions-table th {
+    text-align: left;
+    padding: 12px 16px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--input-border);
+}
+
+.submissions-table td {
+    padding: 14px 16px;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--input-border);
+    vertical-align: middle;
+}
+
+.submissions-table tr:last-child td {
+    border-bottom: none;
+}
+
+.submissions-table tr:hover td {
+    background: var(--bg-main);
+}
+
+.btn-download {
+    background: var(--secondary);
+    color: white;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 0.83rem;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-download:hover {
+    filter: brightness(1.15);
+    transform: translateY(-1px);
+}
+
+.sub-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: var(--bg-main);
+    color: var(--text-muted);
+    border: 1px solid var(--input-border);
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-muted);
+    font-size: 1rem;
+}
