@@ -35,10 +35,21 @@ def analyze(text, syllabus):
         
         contents = f"SYLLABUS:\n{syllabus}\n\nQUESTION PAPERS:\n{text}\n\n{prompt}"
         
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=contents,
-        )
+        import time
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=contents,
+                )
+                break
+            except Exception as e:
+                if ("503" in str(e) or "429" in str(e) or "UNAVAILABLE" in str(e).upper()) and attempt < max_retries - 1:
+                    print(f"API busy (attempt {attempt + 1}), retrying in {2 ** attempt} seconds...")
+                    time.sleep(2 ** attempt)
+                else:
+                    raise e
         
         raw_text = response.text
         

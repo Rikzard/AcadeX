@@ -81,10 +81,21 @@ def extract_image():
         Example: [["Header 1", "Header 2"], ["Row 1 Col 1", "Row 1 Col 2"]]
         """
         
-        response = client.models.generate_content(
-            model='gemini-2.5-flash',
-            contents=[myfile, prompt],
-        )
+        import time
+        max_retries = 3
+        for attempt in range(max_retries):
+            try:
+                response = client.models.generate_content(
+                    model='gemini-2.5-flash',
+                    contents=[myfile, prompt],
+                )
+                break
+            except Exception as e:
+                if ("503" in str(e) or "429" in str(e) or "UNAVAILABLE" in str(e).upper()) and attempt < max_retries - 1:
+                    print(f"API busy (attempt {attempt + 1}), retrying in {2 ** attempt} seconds...")
+                    time.sleep(2 ** attempt)
+                else:
+                    raise e
 
         # Parse JSON robustly
         import re
