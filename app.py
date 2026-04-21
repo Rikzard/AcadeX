@@ -688,6 +688,16 @@ def analyze_semester():
         if os.path.exists(syllabus_path):
             os.remove(syllabus_path)
 
+    # Fast pre-validation: Is this really the right syllabus?
+    val_prompt = f"Does the following syllabus snippet logically match the academic subject '{subject}'? Answer ONLY with 'YES' or 'NO'.\n\nSyllabus:\n{syllabus_text[:2500]}"
+    try:
+        val_res = call_gemini_with_retry(val_prompt, model_name='gemini-2.5-flash', max_retries=2)
+        txt = val_res.text.strip().upper()
+        if "NO" in txt and not txt.startswith("YES"):
+            return jsonify({"error": f"The uploaded syllabus does not match the selected subject: {subject}. Please upload the correct syllabus."}), 400
+    except Exception as e:
+        print(f"Validation step skipped or failed: {e}")
+
     target_dir = os.path.join(app.config["UPLOAD_FOLDER"], semester, subject.strip().lower())
     if not os.path.isdir(target_dir):
         alt_target = os.path.join(app.config["UPLOAD_FOLDER"], semester, subject.strip())
