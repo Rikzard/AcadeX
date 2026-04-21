@@ -70,51 +70,217 @@
 
         <div class="view-container">
             
-            <!-- Dashboard View -->
+            <!-- Dashboard View — Role-aware via Jinja2 -->
             <section id="dashboard-view" class="view active fade-in">
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-label">Analysis Consistency</div>
-                        <div class="stat-value">94.2%</div>
-                        <div class="stat-trend positive">↑ 12% this month</div>
+
+                {# ════════════════════════════════════════════ #}
+                {# TEACHER DASHBOARD                           #}
+                {# ════════════════════════════════════════════ #}
+                {% if role == 'teacher' %}
+
+                <!-- ① Operational Metrics Row -->
+                <div class="stats-grid ops-grid">
+                    <div class="stat-card stat-card--teacher">
+                        <div class="stat-icon">📬</div>
+                        <div class="stat-label">Pending Submissions</div>
+                        <div class="stat-value">{{ teacher_metrics.pending_submissions }}</div>
+                        <div class="stat-trend neutral">Awaiting review</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Papers Processed</div>
-                        <div class="stat-value">128</div>
+                    <div class="stat-card stat-card--teacher">
+                        <div class="stat-icon">🔍</div>
+                        <div class="stat-label">Marks Extracted Today</div>
+                        <div class="stat-value">{{ teacher_metrics.marks_extracted_today }}</div>
+                        <div class="stat-trend positive">↑ Gemini Vision calls</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Accuracy Rate</div>
-                        <div class="stat-value">99.1%</div>
+                    <div class="stat-card stat-card--teacher">
+                        <div class="stat-icon">📚</div>
+                        <div class="stat-label">PYQ Topics Analyzed</div>
+                        <div class="stat-value">{{ teacher_metrics.pyq_topics_analyzed }}</div>
+                        <div class="stat-trend neutral">From PDF cache</div>
+                    </div>
+                    <div class="stat-card stat-card--teacher">
+                        <div class="stat-icon">📖</div>
+                        <div class="stat-label">Active Reference Books</div>
+                        <div class="stat-value">{{ teacher_metrics.active_reference_books }}</div>
+                        <div class="stat-trend neutral">Across all semesters</div>
                     </div>
                 </div>
 
-                <div class="dashboard-charts">
-                    <div class="chart-card large">
-                        <h3>Student study Consistency Heatmap</h3>
-                        <div class="heatmap-container" id="consistencyHeatmap">
-                            <!-- Populated via script.js -->
-                        </div>
-                        <div class="heatmap-legend">
-                            <span>Less</span>
-                            <div class="legend-cells">
-                                <div class="cell" style="background-color: var(--heatmap-0)"></div>
-                                <div class="cell" style="background-color: var(--heatmap-1)"></div>
-                                <div class="cell" style="background-color: var(--heatmap-2)"></div>
-                                <div class="cell" style="background-color: var(--heatmap-3)"></div>
+                <!-- ② Analytical Insights Row -->
+                <div class="insights-grid">
+
+                    <!-- Average Class Performance Bar Chart -->
+                    <div class="chart-card insight-card">
+                        <h3>📊 Average Class Performance</h3>
+                        <div class="bar-chart-list">
+                            {% for item in teacher_class_performance %}
+                            <div class="bar-row">
+                                <span class="bar-label">{{ item.subject }}</span>
+                                <div class="bar-track">
+                                    <div class="bar-fill bar-fill--teacher"
+                                         style="width: {{ item.avg }}%;"
+                                         title="{{ item.avg }}%">
+                                    </div>
+                                </div>
+                                <span class="bar-value">{{ item.avg }}%</span>
                             </div>
-                            <span>More</span>
+                            {% endfor %}
                         </div>
                     </div>
-                    <div class="chart-card">
-                        <h3>Performance Trend</h3>
-                        <div class="chart-box">
-                            <svg class="line-chart-svg" viewBox="0 0 400 200" id="performanceChart">
-                                <path class="chart-line" d="M0,150 Q50,130 100,140 T200,80 T300,90 T400,40" fill="none" stroke="var(--accent)" stroke-width="3" />
-                                <circle cx="400" cy="40" r="4" fill="var(--accent)" />
-                            </svg>
+
+                    <!-- Top Predicted Exam Topics -->
+                    <div class="chart-card insight-card">
+                        <h3>🎯 Top Predicted Exam Topics</h3>
+                        <div class="topic-list">
+                            {% for t in teacher_top_topics %}
+                            <div class="topic-row">
+                                <div class="topic-row-header">
+                                    <span class="topic-name">{{ t.topic }}</span>
+                                    <span class="topic-prob teacher-prob">{{ t.probability }}%</span>
+                                </div>
+                                <div class="bar-track topic-track">
+                                    <div class="bar-fill bar-fill--teacher"
+                                         style="width: {{ t.probability }}%;">
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
                         </div>
+                    </div>
+
+                </div>
+
+                <!-- ③ Action Center — Recent System Events -->
+                <div class="action-center-card">
+                    <div class="action-center-header">
+                        <h3>⚡ Action Center — Recent System Events</h3>
+                        <span class="live-badge">● LIVE</span>
+                    </div>
+                    <table class="events-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Event</th>
+                                <th>Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ev in teacher_recent_events %}
+                            <tr class="event-row">
+                                <td class="event-icon-cell">{{ ev.icon }}</td>
+                                <td class="event-desc">{{ ev.event }}</td>
+                                <td class="event-time">{{ ev.time }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {# ════════════════════════════════════════════ #}
+                {# STUDENT DASHBOARD                           #}
+                {# ════════════════════════════════════════════ #}
+                {% elif role == 'student' %}
+
+                <!-- Student Blue-Accent Override -->
+                <style>
+                    .stat-card--student { border-top: 2px solid #2563eb; }
+                    .stat-card--student:hover {
+                        border-color: #3b82f6;
+                        box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 24px rgba(37,99,235,0.18);
+                    }
+                    .stat-card--student .stat-trend.positive { color: #3b82f6; }
+                    .stat-card--student .stat-icon { color: #3b82f6; }
+                    .bar-fill--student { background: linear-gradient(90deg, #1d4ed8, #3b82f6); }
+                    .student-prob { color: #3b82f6; }
+                    .focus-dot { background: #3b82f6; }
+                    .resume-btn {
+                        background: linear-gradient(135deg, #1d4ed8, #2563eb);
+                        box-shadow: 0 6px 20px rgba(37,99,235,0.3);
+                        color: #fff;
+                    }
+                    .resume-btn:hover {
+                        background: linear-gradient(135deg, #2563eb, #3b82f6);
+                        box-shadow: 0 8px 28px rgba(59,130,246,0.45);
+                        transform: translateY(-2px);
+                    }
+                    .book-item-s { border-left-color: #2563eb; }
+                    .book-item-s:hover { border-left-color: #3b82f6; }
+                </style>
+
+                <!-- ① Academic Progress Row -->
+                <div class="stats-grid ops-grid">
+                    <div class="stat-card stat-card--student">
+                        <div class="stat-icon">📝</div>
+                        <div class="stat-label">Pending Assignments</div>
+                        <div class="stat-value">{{ student_metrics.pending_assignments }}</div>
+                        <div class="stat-trend positive">Due this week</div>
+                    </div>
+                    <div class="stat-card stat-card--student">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-label">Mock Test Average</div>
+                        <div class="stat-value">{{ student_metrics.mock_test_avg }}</div>
+                        <div class="stat-trend positive">Past sessions</div>
+                    </div>
+                    <div class="stat-card stat-card--student">
+                        <div class="stat-icon">📄</div>
+                        <div class="stat-label">PDF Notes Extracted</div>
+                        <div class="stat-value">{{ student_metrics.pdf_notes_extracted }}</div>
+                        <div class="stat-trend neutral">Via OCR pipeline</div>
+                    </div>
+                    <div class="stat-card stat-card--student">
+                        <div class="stat-icon">🏆</div>
+                        <div class="stat-label">Latest Grade</div>
+                        <div class="stat-value">{{ student_metrics.latest_grade }}</div>
+                        <div class="stat-trend neutral">Most recent exam</div>
                     </div>
                 </div>
+
+                <!-- ② Quick Access + Study Focus Row -->
+                <div class="student-lower-grid">
+
+                    <!-- Quick Access Panel -->
+                    <div class="chart-card student-panel">
+                        <h3>📖 Quick Access — Recent Reference Books</h3>
+                        <ul class="student-book-list">
+                            {% for book in student_recent_books %}
+                            <li class="book-item-s">
+                                <div class="book-item-title">{{ book.title }}</div>
+                                <div class="book-item-meta">{{ book.author }} &mdash; <em>{{ book.subject }}</em></div>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <button class="btn resume-btn" onclick="switchView('mock-test-view')" id="resumeMockTestBtn">
+                            ▶ Resume Latest Mock Test
+                        </button>
+                    </div>
+
+                    <!-- Study Focus Topics -->
+                    <div class="chart-card student-panel">
+                        <h3>🎯 Study Focus — Highly Probable Topics</h3>
+                        <p class="panel-subtitle">Based on your teacher's latest PYQ analysis</p>
+                        <ul class="focus-topic-list">
+                            {% for topic in student_focus_topics %}
+                            <li class="focus-topic-item">
+                                <span class="focus-dot"></span>
+                                <span class="focus-topic-text">{{ topic }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="focus-note">
+                            💡 These topics have the highest predicted occurrence in upcoming exams.
+                        </div>
+                    </div>
+
+                </div>
+
+                {% else %}
+                <!-- Fallback for unknown role -->
+                <div class="stat-card" style="text-align:center; padding: 48px;">
+                    <div class="stat-label">Welcome to AcadeX</div>
+                    <div class="stat-value" style="font-size:1.4rem;">Dashboard</div>
+                </div>
+                {% endif %}
+
             </section>
 
             <!-- PYQ Predictor View -->

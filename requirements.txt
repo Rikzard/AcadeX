@@ -1,0 +1,9 @@
+flask
+flask-sqlalchemy
+python-dotenv
+pytesseract
+Pillow
+pdf2image
+google-genai
+openpyxl
+werkzeug

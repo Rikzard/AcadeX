@@ -133,16 +133,16 @@ async function loadLibrary() {
             return;
         }
 
-        shelf.innerHTML = books.map((book, index) => `
-            <div class="book-card fade-in" onclick="openBook('${book.url}')">
+        shelf.innerHTML = books.map((book) => `
+            <div class="book-card fade-in" onclick="openBook('${book.url}')" data-book-id="${book.id}">
                 <div class="book-info">
                     <div class="book-title">${book.title}</div>
                     <div class="book-author">by ${book.author}</div>
                 </div>
                 <div class="book-badge">PDF</div>
-                <!-- Delete Button -->
+                <!-- Delete Button (uses book.id — safe against race conditions) -->
                 ${document.querySelector('.btn-add-small') ? `
-                    <button class="btn-delete-book" onclick="event.stopPropagation(); deleteBook(${index})" title="Delete Book">×</button>
+                    <button class="btn-delete-book" onclick="event.stopPropagation(); deleteBook(${book.id})" title="Delete Book">×</button>
                 ` : ''}
             </div>
         `).join("");
@@ -200,20 +200,18 @@ async function addBook() {
     }
 }
 
-async function deleteBook(index) {
+async function deleteBook(bookId) {
     if (!confirm("Are you sure you want to delete this book?")) return;
-
-    const sem = document.getElementById("libSemester").value;
-    const sub = document.getElementById("libSubject").value;
 
     try {
         const response = await fetch('/api/books/delete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ semester: sem, subject: sub, index })
+            // Send the DB primary key — stable across concurrent requests
+            body: JSON.stringify({ book_id: bookId })
         });
         const result = await response.json();
-        
+
         if (result.success) {
             loadLibrary();
         } else {

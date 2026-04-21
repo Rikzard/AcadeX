@@ -1063,3 +1063,368 @@ label {
 /* ─── FADE IN ─────────────────────────────────────────────── */
 .animate-fade { animation: fadeIn 0.4s ease both; }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ════════════════════════════════════════════════════════════
+   REFACTORED DASHBOARD — DATA-DRIVEN UI COMPONENTS
+   ════════════════════════════════════════════════════════════ */
+
+/* ─── OPS / METRICS GRID (4-col) ─────────────────────────── */
+.ops-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+@media (max-width: 1100px) {
+    .ops-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+    .ops-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── SHARED STAT CARD ICON ───────────────────────────────── */
+.stat-icon {
+    font-size: 1.6rem;
+    margin-bottom: 12px;
+    display: block;
+    line-height: 1;
+}
+
+/* ─── TEACHER STAT CARD ───────────────────────────────────── */
+.stat-card--teacher {
+    border-top: 2px solid var(--green-dim);
+}
+
+.stat-card--teacher:hover {
+    border-color: var(--green);
+    box-shadow: 0 16px 40px rgba(0,0,0,0.4), 0 0 24px var(--green-glow);
+}
+
+.stat-card--teacher .stat-trend.positive { color: var(--green); }
+.stat-card--teacher .stat-trend.neutral  { color: var(--text-mute); font-size: 0.78rem; }
+.stat-card--teacher .stat-icon           { color: var(--green); }
+
+/* ─── INSIGHTS GRID (2-col) ───────────────────────────────── */
+.insights-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+@media (max-width: 900px) {
+    .insights-grid { grid-template-columns: 1fr; }
+}
+
+.insight-card {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ─── BAR CHART ROWS ──────────────────────────────────────── */
+.bar-chart-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 8px;
+}
+
+.bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bar-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-dim);
+    min-width: 72px;
+    text-align: right;
+}
+
+.bar-track {
+    flex: 1;
+    background: rgba(255,255,255,0.05);
+    border-radius: 100px;
+    height: 8px;
+    overflow: hidden;
+}
+
+.bar-fill {
+    height: 100%;
+    border-radius: 100px;
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.bar-fill--teacher {
+    background: linear-gradient(90deg, var(--green-dim), var(--green));
+}
+
+.bar-value {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--text-dim);
+    min-width: 38px;
+    text-align: right;
+}
+
+/* ─── TOPIC PROBABILITY LIST ──────────────────────────────── */
+.topic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 8px;
+}
+
+.topic-row { display: flex; flex-direction: column; gap: 6px; }
+
+.topic-row-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+}
+
+.topic-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+    flex: 1;
+    padding-right: 8px;
+}
+
+.topic-prob {
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+}
+
+.teacher-prob { color: var(--green); }
+
+.topic-track { height: 6px; }
+
+/* ─── ACTION CENTER CARD ──────────────────────────────────── */
+.action-center-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 28px;
+    margin-bottom: 28px;
+}
+
+.action-center-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.action-center-header h3 {
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+}
+
+.live-badge {
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: var(--green);
+    letter-spacing: 0.05em;
+    animation: pulse-live 2s ease-in-out infinite;
+}
+
+@keyframes pulse-live {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.45; }
+}
+
+/* ─── EVENTS TABLE ────────────────────────────────────────── */
+.events-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+}
+
+.events-table th {
+    text-align: left;
+    padding: 8px 14px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-mute);
+    border-bottom: 1px solid var(--border);
+}
+
+.events-table td {
+    padding: 13px 14px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
+}
+
+.events-table tr:last-child td { border-bottom: none; }
+
+.event-row:hover td {
+    background: rgba(255,255,255,0.025);
+    color: var(--text);
+}
+
+.event-icon-cell {
+    font-size: 1.1rem;
+    width: 36px;
+    text-align: center;
+}
+
+.event-desc {
+    font-weight: 500;
+    color: var(--text);
+}
+
+.event-time {
+    font-size: 0.78rem;
+    color: var(--text-mute);
+    white-space: nowrap;
+    text-align: right;
+}
+
+/* ─── STUDENT DASHBOARD ───────────────────────────────────── */
+
+/* stat-card neutral trend shared */
+.stat-trend.neutral {
+    color: var(--text-mute);
+    font-size: 0.78rem;
+}
+
+/* ─── STUDENT LOWER GRID ──────────────────────────────────── */
+.student-lower-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 28px;
+}
+
+@media (max-width: 900px) {
+    .student-lower-grid { grid-template-columns: 1fr; }
+}
+
+.student-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+/* ─── STUDENT BOOK LIST ───────────────────────────────────── */
+.student-book-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 12px 0 20px;
+    padding: 0;
+}
+
+.book-item-s {
+    background: var(--bg-2);
+    border-left: 3px solid #2563eb;
+    border-radius: 0 10px 10px 0;
+    padding: 12px 16px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.book-item-s:hover {
+    background: rgba(37, 99, 235, 0.07);
+    transform: translateX(3px);
+}
+
+.book-item-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 3px;
+}
+
+.book-item-meta {
+    font-size: 0.78rem;
+    color: var(--text-dim);
+}
+
+.book-item-meta em {
+    color: #60a5fa;
+    font-style: normal;
+    font-weight: 600;
+}
+
+/* ─── FOCUS TOPIC LIST ────────────────────────────────────── */
+.panel-subtitle {
+    font-size: 0.8rem;
+    color: var(--text-mute);
+    margin-top: 4px;
+    margin-bottom: 16px;
+    font-style: italic;
+}
+
+.focus-topic-list {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.focus-topic-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.focus-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #3b82f6;
+    flex-shrink: 0;
+    box-shadow: 0 0 8px rgba(59,130,246,0.5);
+}
+
+.focus-topic-text {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+}
+
+.focus-note {
+    background: rgba(59,130,246,0.07);
+    border: 1px solid rgba(59,130,246,0.15);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-top: auto;
+    line-height: 1.5;
+}
+
+/* ─── RESUME BTN ──────────────────────────────────────────── */
+.resume-btn {
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: auto;
+}

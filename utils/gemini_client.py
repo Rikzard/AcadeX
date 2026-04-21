@@ -53,10 +53,10 @@ def call_gemini_with_retry(prompt, model_name='gemini-2.5-flash', max_retries=7,
             if is_transient and attempt < max_retries - 1:
                 # Use a slightly more patient backoff: 3, 6, 12, 24... seconds
                 wait_time = 3 * (2 ** attempt)
-                logger.warning(f"⚠️ Gemini busy or overloaded (Attempt {attempt + 1}). Retrying in {wait_time}s...")
+                logger.warning(f"[Gemini] Busy/overloaded (Attempt {attempt + 1}/{max_retries}). Retrying in {wait_time}s...")
                 time.sleep(wait_time)
             else:
-                logger.error(f"❌ Gemini API call failed after {attempt + 1} attempts: {e}")
+                logger.error(f"[Gemini] API call failed after {attempt + 1} attempts: {e}")
                 raise e
 
     raise Exception("API failed after maximum retries")
