@@ -1,0 +1,33 @@
+# Built artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Environments
+.venv/
+env/
+venv/
+ENV/
+
+# Local configuration
+.env
+instance/acadex.db
+instance/
+
+# Local data & logs
+uploads/*
+!uploads/.gitkeep
+submissions/*
+!submissions/.gitkeep
+*.log
+
+# IDEs
+.vscode/
+.idea/
+
+# Large files / binary artifacts
+*.pdf
+*.jpg
+*.png
+!templates/static/hero.png

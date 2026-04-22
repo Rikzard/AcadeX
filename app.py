@@ -64,10 +64,17 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 # ==========================================
-# OCR / File Paths (unchanged)
+# OCR / File Paths (Dynamic for Windows/Linux)
 # ==========================================
-pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
-POPPLER_PATH = r"C:\poppler\Library\bin"
+if os.name == 'nt':
+    # Windows paths (local dev)
+    pytesseract.pytesseract.tesseract_cmd = r"C:\Tesseract-OCR\tesseract.exe"
+    POPPLER_PATH = r"C:\poppler\Library\bin"
+else:
+    # Linux paths (cloud deployment)
+    pytesseract.pytesseract.tesseract_cmd = "/usr/bin/tesseract"
+    POPPLER_PATH = None  # Handled by system PATH in Linux containers
+
 
 UPLOAD_FOLDER    = "uploads"
 SUBMISSIONS_FOLDER = "submissions"
@@ -945,4 +952,5 @@ def download_submission(filename):
 # Run app
 # ==========================================
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=True)
