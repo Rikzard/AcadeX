@@ -1,37 +1,34 @@
-# Use an official lightweight Python image
+# Base image
 FROM python:3.11-slim
 
 # Install system dependencies
-# - tesseract-ocr: For OCR processing
-# - libtesseract-dev: Tesseract development libraries
-# - poppler-utils: For pdf2image (converting PDF to images)
 RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     libtesseract-dev \
     poppler-utils \
+    libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy the requirements file into the container
+# Copy requirements first (better caching)
 COPY requirements.txt .
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the rest of the application code
+# Copy project files
 COPY . .
 
-# Create necessary folders
+# Create runtime folders
 RUN mkdir -p uploads submissions instance
 
-# Set environment variables
+# Environment variables
 ENV FLASK_APP=app.py
-ENV PORT=5000
 
-# Expose the port used by the app
-EXPOSE 5000
+# Expose (optional for docs)
+EXPOSE 10000
 
-# Run the application using Gunicorn for production
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "app:app"]
+# Start server (Render-compatible)
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:$PORT app:app"]
